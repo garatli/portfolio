@@ -1,0 +1,610 @@
+<!DOCTYPE HTML>
+<!--
+	Hyperspace by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>House Prices</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Header -->
+		<header id="header">
+			<a href="index.html" class="title">Back</a>
+			<nav>
+				<ul>
+					<li><a href="index.html">Home</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<section id="main" class="wrapper">
+						<div class="inner">
+							<h1 class="major">Predicting House Prices in King County with Machine Learning</h1>
+							<span class="image fit"><img src="images/US-map.png" alt="centered image" /></span>
+							<pre></pre>
+							<h2>Business Problem</h2>
+							<p>This analysis sits underneath an app that would solve the following problems:</p>
+							<ol><li>I, as a home buyer, want to know the fair value of a house so that I do not overpay for one</li>
+								<li>I, as a home seller, want to know the fair value of my house so that I do not undersell it.</li></ol>
+
+							<h2>Data Importing</h2>
+							<p>This dataset was taken from Kaggle and can be found <a href="https://www.kaggle.com/harlfoxem/housesalesprediction" target="_blank"> here</a></p>
+
+
+
+<pre><code><b>#Importing required libraries</b>
+	import pandas as pd
+	import numpy as np
+	import matplotlib.pyplot as plt
+	import seaborn as sns
+	<i>%matplotlib inline</i>
+
+<b>#Imporing, reading and transforming data into a Pandas dataframe</b>
+	Data ='data/kc_house_data_NaN.csv'
+	df=pd.read_csv(Data)
+	df.head(5)
+</code></pre>
+
+<pre><code>
+	<table border="1" class="dataframe" width="100%">
+		<thead>
+		  <tr style="text-align: right;"> 
+			<th></th>
+			<th>Unnamed: 0</th>
+			<th>id</th>
+			<th>date</th>
+			<th>price</th>
+			<th>bedrooms</th>
+			<th>bathrooms</th>
+			<th>sqft_living</th>
+			<th>sqft_lot</th>
+			<th>floors</th>
+			<th>waterfront</th>
+			<th>view</th>
+			<th>condition</th>
+			<th>grade</th>
+			<th>sqft_above</th>
+			<th>sqft_basement</th>
+			<th>yr_built</th>
+			<th>yr_renovated</th>
+			<th>zipcode</th>
+			<th>lat</th>
+			<th>long</th>
+			<th>sqft_living15</th>
+			<th>sqft_lot15</th>
+		  </tr>
+		</thead>
+		<tbody>
+		  <tr>
+			<th>0</th>
+			<td>0</td>
+			<td>7129300520</td>
+			<td>20141013T000000</td>
+			<td>221900.0</td>
+			<td>3.0</td>
+			<td>1.00</td>
+			<td>1180</td>
+			<td>5650</td>
+			<td>1.0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>3</td>
+			<td>7</td>
+			<td>1180</td>
+			<td>0</td>
+			<td>1955</td>
+			<td>0</td>
+			<td>98178</td>
+			<td>47.5112</td>
+			<td>-122.257</td>
+			<td>1340</td>
+			<td>5650</td>
+		  </tr>
+		  <tr>
+			<th>1</th>
+			<td>1</td>
+			<td>6414100192</td>
+			<td>20141209T000000</td>
+			<td>538000.0</td>
+			<td>3.0</td>
+			<td>2.25</td>
+			<td>2570</td>
+			<td>7242</td>
+			<td>2.0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>3</td>
+			<td>7</td>
+			<td>2170</td>
+			<td>400</td>
+			<td>1951</td>
+			<td>1991</td>
+			<td>98125</td>
+			<td>47.7210</td>
+			<td>-122.319</td>
+			<td>1690</td>
+			<td>7639</td>
+		  </tr>
+		  <tr>
+			<th>2</th>
+			<td>2</td>
+			<td>5631500400</td>
+			<td>20150225T000000</td>
+			<td>180000.0</td>
+			<td>2.0</td>
+			<td>1.00</td>
+			<td>770</td>
+			<td>10000</td>
+			<td>1.0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>3</td>
+			<td>6</td>
+			<td>770</td>
+			<td>0</td>
+			<td>1933</td>
+			<td>0</td>
+			<td>98028</td>
+			<td>47.7379</td>
+			<td>-122.233</td>
+			<td>2720</td>
+			<td>8062</td>
+		  </tr>
+		  <tr>
+			<th>3</th>
+			<td>3</td>
+			<td>2487200875</td>
+			<td>20141209T000000</td>
+			<td>604000.0</td>
+			<td>4.0</td>
+			<td>3.00</td>
+			<td>1960</td>
+			<td>5000</td>
+			<td>1.0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>5</td>
+			<td>7</td>
+			<td>1050</td>
+			<td>910</td>
+			<td>1965</td>
+			<td>0</td>
+			<td>98136</td>
+			<td>47.5208</td>
+			<td>-122.393</td>
+			<td>1360</td>
+			<td>5000</td>
+		  </tr>
+		  <tr>
+			<th>4</th>
+			<td>4</td>
+			<td>1954400510</td>
+			<td>20150218T000000</td>
+			<td>510000.0</td>
+			<td>3.0</td>
+			<td>2.00</td>
+			<td>1680</td>
+			<td>8080</td>
+			<td>1.0</td>
+			<td>0</td>
+			<td>0</td>
+			<td>3</td>
+			<td>8</td>
+			<td>1680</td>
+			<td>0</td>
+			<td>1987</td>
+			<td>0</td>
+			<td>98074</td>
+			<td>47.6168</td>
+			<td>-122.045</td>
+			<td>1800</td>
+			<td>7503</td>
+		  </tr>
+		</tbody>
+	  </table>
+</code></pre>
+<pre><code><b>#Displaying data types</b>
+	df.dtypes
+</code></pre>
+								
+<pre><blockquote>Unnamed: 0         int64
+id                 int64
+date              object
+price            float64
+bedrooms         float64
+bathrooms        float64
+sqft_living        int64
+sqft_lot           int64
+floors           float64
+waterfront         int64
+view               int64
+condition          int64
+grade              int64
+sqft_above         int64
+sqft_basement      int64
+yr_built           int64
+yr_renovated       int64
+zipcode            int64
+lat              float64
+long             float64
+sqft_living15      int64
+sqft_lot15         int64
+dtype: object
+</blockquote></pre>
+
+
+								<h2>Data Checking and Wrangling</h2>
+								<pre></pre>
+<pre><code><b>#Droping unnecessary columns</b>
+	df.drop(["id", "Unnamed: 0"], axis = 1, inplace = True)
+
+<b>#Checking for missing values</b>
+	df.isna().sum()
+</code></pre>
+<pre><blockquote>date              0
+price             0
+bedrooms         13
+bathrooms        10
+sqft_living       0
+sqft_lot          0
+floors            0
+waterfront        0
+view              0
+condition         0
+grade             0
+sqft_above        0
+sqft_basement     0
+yr_built          0
+yr_renovated      0
+zipcode           0
+lat               0
+long              0
+sqft_living15     0
+sqft_lot15        0
+dtype: int64
+</blockquote></pre>
+<pre><code><b>#Calculating columns rounded averages to replace misssing values</b>
+	mean_1=df['bedrooms'].mean()
+	mean_2=df['bathrooms'].mean()
+	round(mean_1), round(mean_2)
+
+<b>#Replacing missing values with rounded average</b>
+	df['bedrooms'].replace(np.nan,round(mean_1), inplace=True)
+	df['bathrooms'].replace(np.nan,round(mean_2), inplace=True)
+
+<b>#Checking for missing values</b>
+	df.isna().sum()
+</code></pre>
+<pre><blockquote>date             0
+price            0
+bedrooms         0
+bathrooms        0
+sqft_living      0
+sqft_lot         0
+floors           0
+waterfront       0
+view             0
+condition        0
+grade            0
+sqft_above       0
+sqft_basement    0
+yr_built         0
+yr_renovated     0
+zipcode          0
+lat              0
+long             0
+sqft_living15    0
+sqft_lot15       0
+dtype: int64
+</blockquote></pre>
+
+								<h2>Data Exploration and Analysis</h2>
+								<pre></pre>
+<pre><code><b>#Visualizing waterfront on price variability</b>
+	plt.style.use('dark_background')
+	plt.figure(figsize=(10,5), dpi = 100)
+	sns.boxplot(df['waterfront'], df['price'])
+	plt.title("'Waterfront' vs 'Price'")
+</code></pre>
+								<div class="col-4"><span class="image"><img src="images/waterfront.png" alt="" /></span></div>
+								<pre></pre>
+<pre><code><b>#Visualizing number of bedrooms effect on price variability</b>
+	plt.style.use('dark_background')
+	plt.figure(figsize=(10,5), dpi = 100)
+	sns.boxplot(df['bedrooms'], df['price'])
+	plt.title("'Number of bedrooms' vs 'Price'")
+</code></pre>
+								<div class="col-4"><span class="image"><img src="images/bedrooms.png" alt="" /></span></div>
+								<pre></pre>
+<pre><code><b>#Visualizing sqft_living effect on price</b>
+	plt.style.use('dark_background')
+	plt.figure(figsize=(10,5), dpi = 100)
+	sns.regplot(df['sqft_living'], df['price'])
+	plt.title("sqft_living Regression Plot")
+</code></pre>
+								<div class="col-4"><span class="image"><img src="images/sqft.png" alt="" /></span></div>
+							<pre></pre>
+<pre><code><b>#Visualizing houses location on a scatterplot</b>
+	plt.style.use('dark_background')
+	plt.figure(figsize=(10,5))
+	sns.scatterplot(x=df.long.values, y=df.lat.values, data=df, hue='price', palette='Spectral')
+	plt.xlabel('Longitude')
+	plt.ylabel('Latitude')
+	plt.show()
+</code></pre>
+								<div class="col-4"><span class="image"><img src="images/location-1.png" alt="" /></span></div>
+								<pre></pre>
+<pre><code><b>#Visualizing houses location on a US map</b>
+	import plotly.graph_objects as go
+	
+	plt.style.use('dark_background')
+	fig = go.Figure(data=go.Scattergeo(
+			lon = df['long'],
+			lat = df['lat'],
+			mode = 'markers',
+		   marker = dict(
+				size = 2,
+				opacity = 0.8,
+				reversescale = True,
+				autocolorscale = False,
+				symbol = 'square',
+				line = dict(
+					width=1,
+					color='red'
+				),
+				colorscale = 'Blues',
+				cmin = 0,
+				color = df['price'],
+				cmax = df['price'].max(),
+				colorbar_title="Price"
+			)))
+	
+	fig.update_layout(
+			title = 'Houses in King County, WA, USA',
+			geo_scope='usa',
+		)
+	fig.show()</code></pre>
+								<div class="col-4"><span class="image"><img src="images/location-2.png" alt="" /></span></div>
+								<pre></pre>
+<pre><code><b>#Ranking features by corrolation to price</b>
+	df.corr()['price'].sort_values(ascending = False)
+</code></pre>
+<pre><blockquote>price            1.000000
+sqft_living      0.702035
+grade            0.667434
+sqft_above       0.605567
+sqft_living15    0.585379
+bathrooms        0.525752
+view             0.397293
+sqft_basement    0.323816
+bedrooms         0.308868
+lat              0.307003
+waterfront       0.266369
+floors           0.256794
+yr_renovated     0.126434
+sqft_lot         0.089661
+sqft_lot15       0.082447
+yr_built         0.054012
+condition        0.036362
+long             0.021626
+zipcode         -0.053203
+Name: price, dtype: float64
+</blockquote></pre>
+
+								<h2>Model Development</h2>
+								<pre></pre>
+<pre><code><b>#Importing required libraries</b>
+	from sklearn.linear_model import LinearRegression
+
+<b>#Developing simple linear regression model</b>
+	X1 = df[['sqft_living']]
+	Y1 = df['price']
+
+	m1 = LinearRegression()
+	m1.fit(X1,Y1)
+
+	print("Model R^2 =", m1.score(X1, Y1))
+	print("Model Coefficients =", m1.coef_)
+	print("Model Intercept =", m1.intercept_)
+</code></pre>
+<pre><blockquote>Model R^2 = 0.4928532179037931
+Model Coefficients = [280.6235679]
+Model Intercept = -43580.74309447396
+</blockquote></pre>
+
+<pre><code><b>#Developing and evaluating a multiple linear regression Model</b>
+	features =["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]
+	
+	X = df[features]
+	Y = df['price']
+
+	m2 = LinearRegression()
+	m2.fit(X, Y)
+	print("Model R^2 =", m2.score(X, Y))
+	print("Model Coefficients =", m2.coef_)
+	print("Model Intercept =", m2.intercept_)
+</code></pre>
+<pre><blockquote>Model R^2 = 0.6576599584421201
+Model Coefficients = [-3.12465482e+04  6.05472952e+05  6.72659403e+05 -2.62031892e+04
+	-1.44959963e+15  6.70734326e+04 -3.29557437e+03  4.43639613e+00
+	-1.44959963e+15  8.20354679e+04  1.44959963e+15]
+Model Intercept = -32370226.04623043
+</blockquote></pre>
+<pre><code><b>#Importing required libraries</b>
+	from sklearn.pipeline import Pipeline
+	from sklearn.preprocessing import StandardScaler,PolynomialFeatures
+
+<b>#Creating pipeline for polynomial transformation and developing a first order polynomial regression</b>
+	Input=[('scale',StandardScaler()),('polynomial', PolynomialFeatures(include_bias=False)),('model',LinearRegression())]
+	
+	pipe = Pipeline(Input)
+	pipe.fit(X, Y)
+	print("Model R^2 =", pipe.score(X, Y))
+</code></pre>
+<pre><blockquote>Model R^2 = 0.7513431689737314
+</blockquote></pre>
+
+										<h2>Model Evaluation</h2>
+										<pre></pre>
+<pre><code><b>#Importing required libraries</b>
+	from sklearn.model_selection import cross_val_score
+	from sklearn.model_selection import train_test_split
+
+<b>#Train and test data split</b>
+	X = df[features]
+	Y = df['price']
+	
+	x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=1)
+	
+	print("number of test samples:", x_test.shape[0])
+	print("number of training samples:",x_train.shape[0])
+</code></pre>
+<pre><blockquote>number of test samples: 6484
+number of training samples: 15129
+</blockquote></pre>
+
+<pre><code><b>#Importing required libraries</b>
+	from sklearn.linear_model import Ridge
+
+<b>#Performing a second order polynomial transformation and training model using Ridge regression object with regularization parameter to 0.1</b>
+	poly1 = PolynomialFeatures(degree = 2)
+	x_train_pr = poly1.fit_transform(x_train[features])
+	x_test_pr = poly1.fit_transform(x_test[features])
+
+	RidgeModel_2 = Ridge(alpha = 0.1)
+	RidgeModel_2.fit(x_train_pr, y_train)
+	yhat_2 = RidgeModel_2.predict(x_test_pr)
+
+	print("Model_2 R^2 =", RidgeModel_2.score(x_test_pr, y_test))
+
+
+<b>#Performing a third order polynomial transformation and training model using Ridge regression object with regularization parameter to 0.1</b>
+	poly2 = PolynomialFeatures(degree = 3)
+	x_train_pr = poly2.fit_transform(x_train[features])
+	x_test_pr = poly2.fit_transform(x_test[features])
+
+	RidgeModel_3 = Ridge(alpha = 0.1)
+	RidgeModel_3.fit(x_train_pr, y_train)
+	yhat_3 = RidgeModel_3.predict(x_test_pr)
+
+	print("Model_3 R^2 =", RidgeModel_3.score(x_test_pr, y_test))
+</code></pre>
+<pre><blockquote>Model_2 R^2 = 0.7473332007002884
+Model_3 R^2 = 0.7108580273147439
+</blockquote></pre>
+<pre><code><b>#Comparing actual values to predicted values by RidgeModel_2</b>
+	A_P=pd.DataFrame({'Actual': y_test, 'Predicted': yhat_2})
+	A_P.head(10)
+</code></pre>
+
+<table border="1" class="dataframe">
+	<thead>
+	  <tr style="text-align: right;">
+		<th></th>
+		<th>Actual</th>
+		<th>Predicted</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+		<th>15544</th>
+		<td>459000.0</td>
+		<td>571331.549455</td>
+	  </tr>
+	  <tr>
+		<th>17454</th>
+		<td>445000.0</td>
+		<td>493676.050347</td>
+	  </tr>
+	  <tr>
+		<th>21548</th>
+		<td>1057000.0</td>
+		<td>649466.920953</td>
+	  </tr>
+	  <tr>
+		<th>3427</th>
+		<td>732350.0</td>
+		<td>680263.397100</td>
+	  </tr>
+	  <tr>
+		<th>8809</th>
+		<td>235000.0</td>
+		<td>328448.656725</td>
+	  </tr>
+	  <tr>
+		<th>3294</th>
+		<td>555000.0</td>
+		<td>594022.940171</td>
+	  </tr>
+	  <tr>
+		<th>275</th>
+		<td>365000.0</td>
+		<td>435950.260250</td>
+	  </tr>
+	  <tr>
+		<th>8736</th>
+		<td>685000.0</td>
+		<td>769216.304693</td>
+	  </tr>
+	  <tr>
+		<th>6161</th>
+		<td>525000.0</td>
+		<td>452117.567310</td>
+	  </tr>
+	  <tr>
+		<th>19832</th>
+		<td>449950.0</td>
+		<td>617460.516393</td>
+	  </tr>
+	</tbody>
+  </table>
+
+<pre><code><b># Model predictions</b>
+	plt.style.use('dark_background')
+	plt.figure(figsize = (10, 5), dpi = 100)
+	plt.scatter(y_test,yhat_2)
+	plt.xlim(0, 2000000)
+	plt.ylim(0, 2000000)
+	
+<b># Perfect predictions</b>
+	plt.plot(y_test,y_test,'r')
+	plt.title("Actual price Vs. Predicted Price")
+</code></pre>
+							<div class="col-4"><span class="image"><img src="images/perfect.png" alt="" /></span></div>
+							<pre></pre>
+
+						</div>
+					</section>
+
+			</div>
+		<!-- Footer -->
+			<footer id="footer" class="wrapper alt">
+				<div class="inner">
+					<ul class="menu">
+						<li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+					</ul>
+				</div>
+			</footer>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
